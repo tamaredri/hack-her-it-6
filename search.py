@@ -14,7 +14,11 @@ def sent_speech(sentence):
         type="device",
         value=sentence
     ))
+    label = tk.Label(window, text=sentence, font=("Arial", 12))
+    label.pack()
+    window.update()
     speak(sentence)
+    return sentence
 
 def get_speech():
     """
@@ -22,15 +26,30 @@ def get_speech():
     :return:
     """
     text = get_speech_()
-    _session_documentation.append(dict( #TODO move after cleanLine
+    _session_documentation.append(dict(
         type="user",
         value=text
     ))
     label = tk.Label(window, text=text, font=("Arial", 12))
     label.pack()
-
+    window.update()
     return text
 
+
+def report_to_client():
+    performer_name = input("Enter the performer name\n")
+
+    data_time_obj = datetime.now()
+    _end_time = data_time_obj.time()
+    report_dict = dict(
+        start_time=_start_time,
+        end_time=_end_time,
+        duration=_end_time-_start_time,
+        actions=[],
+        performer=performer_name,
+    )
+    import pandas as pd
+    return
 
 def process_protocol(protocol):
     current_node = protocol.root
@@ -57,17 +76,21 @@ def process_protocol(protocol):
                     break
 
         current_node = current_edge.next
-    import pandas as pd
-    print(pd.DataFrame(_session_documentation))
+    report_to_client()
 
-def fu():
+from datetime import datetime
+_start_time = None
+def start_runnig():
+    data_time_obj = datetime.now()
+    _start_time = data_time_obj.time()
     process_protocol(cs.suspicion_of_suffocation_from_a_foreign_body())
 
 import tkinter as tk
 window = tk.Tk()
-window.title("Healy services")
 window.geometry("400x300")
-button = tk.Button(window, text="Click Me", command=fu)
+label = tk.Label(window, text="Hello Heally!", font=("Arial", 40))
+label.pack()
+button = tk.Button(window, text="Heally Go!", command=start_runnig)
 button.pack()
 window.mainloop()
 
