@@ -1,6 +1,10 @@
 from protocols import create_suspicion_of_suffocation_from_a_foreign_body_protocol as cs
 from voice_features import speak, get_speech_
 
+def find_protocol(sentence_with_protocol_name):
+    pass
+
+
 def search_current_state(current_state, protocol):
     pass  # todo: future implementation
 
@@ -12,12 +16,25 @@ def sent_speech(sentence):
     """
     speak(sentence)
 
-def get_speech():
+def get_common_word(array_a, array_b):
+    for word in array_a:
+        if word in array_b:
+            return word
+    return None
+
+def get_speech(word_to_continue):
     """
     this is the place to implement speech-to-text
     :return:
     """
-    return get_speech_()
+    sentence = get_speech_()
+    answer = get_common_word(sentence, word_to_continue)
+    while answer is None:
+        # TODO: tell the user to talk again
+        sentence = get_speech_()
+        answer = get_common_word(sentence, word_to_continue)
+
+    return answer
 
 
 def process_protocol(protocol):
