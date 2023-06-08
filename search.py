@@ -1,8 +1,9 @@
 import string
-import tkinter as tk
-from PIL import Image,ImageTk
+from tkinter import Tk, Label
+from PIL import ImageTk, Image
 from protocols import create_suspicion_of_suffocation_from_a_foreign_body_protocol as cs
 from voice_features import speak, listen
+
 
 def find_protocol(sentence_with_protocol_name):
     pass
@@ -21,9 +22,9 @@ def sent_speech(sentence):
         type="Heally",
         value=sentence
     ))
-    label = tk.Label(canvas, text=sentence, font=("Arial", 12))
+    label = tk.Label(window, text=sentence, font=("Arial", 12))
     label.pack()
-    canvas.update()
+    window.update()
     speak(sentence)
     return sentence
 
@@ -73,14 +74,25 @@ def report_to_client():
     data_time_obj = datetime.now()
     _end_time = data_time_obj.time()
     report_dict = dict(
-        start_time=_start_time,
-        end_time=_end_time,
-        duration=_end_time-_start_time,
-        actions=[],
-        performer=performer_name,
+            start_time=_start_time,
+            end_time=_end_time,
+            duration=_end_time - _start_time,
+            actions=[val if l == "device" else "=> " + val for t in _session_documentation for (l, val) in t.key()],
+            performer=performer_name,
     )
-    import pandas as pd
-    return
+    image = Image.open("C:\\Users\\menashe\\Downloads\\im.png")
+    image = image.resize((100, 200))
+    photo = ImageTk.PhotoImage(image)
+    label = Label(window, image=photo)
+    label.pack()
+    with open("report.txt", "w") as f:
+         for (key, val) in report_dict.keys():
+            if not isinstance(val, list):
+                f.write(f"{key}: {val}\n")
+            else:
+                f.write(f"session history:\n")
+                f.writelines(val)
+
 
 def process_protocol(protocol):
     current_node = protocol.root
@@ -117,22 +129,14 @@ def start_runnig():
     process_protocol(cs.suspicion_of_suffocation_from_a_foreign_body())
 
 import tkinter as tk
-root=tk.Tk()
-canvas = tk.Canvas(root,width=800,height=300)
-canvas.grid(columnspan=3)
-button = tk.Button(canvas, text="Heally Go!", command=start_runnig, height=2, width=15)
-button.pack()
-class Image:
-    pass
-
-
-logo= Image.open('logo.png')
-logo=Image.Tk.PotoImage(logo)
-logo_label=tk.Label(image=logo)
-logo_label.image= logo
-logo_label.grid(column=1,row=0)
-label = tk.Label(canvas, text="Hello Heally!", font=("Raleway", 40))
-label.grid(columnspan=3,column=0,row=1)
+window = tk.Tk()
+window.geometry("400x800")
+image = Image.open("C:\\Users\\menashe\\Downloads\\logo.png")
+image = image.resize((300, 140))
+photo = ImageTk.PhotoImage(image)
+label = Label(window, image=photo)
 label.pack()
-
+button = tk.Button(window, text="Start", command=start_runnig)
+button.pack()
+window.mainloop()
 
