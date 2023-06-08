@@ -5,4 +5,6 @@ pyaudio
 wave
 openai_whisper
 text_to_speech
-python_vlc
+python-vlc
+pyttsx3
+torch

@@ -1,18 +1,56 @@
 import string
-from tkinter import Tk, Label
+import string
+l=[]
 from PIL import ImageTk, Image
-from protocols import create_suspicion_of_suffocation_from_a_foreign_body_protocol as cs
+from sentence_transformers import SentenceTransformer
+import torch
+from torch import nn
+
+from protocols.pain_treatment import pain_treatment
 from voice_features import speak, listen
+from protocols.create_suspicion_of_suffocation_from_a_foreign_body_protocol \
+    import suspicion_of_suffocation_from_a_foreign_body
+from protocols.threatening_cessation_of_breathing \
+    import threatening_cessation_of_breathing
 
 
-def find_protocol(sentence_with_protocol_name):
-    pass
+def find_protocol():
+    protocol = get_complex_speech(
+        ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+    protocol_function = get_protocol_func(protocol)
+    sent_speech("your protocol is " + protocol[1] + ". ok?")
+    answer = get_complex_speech(["yes", "no"])
+
+
+    while answer[1] == "no":
+        sent_speech("So, tell me again, what is your situation?")
+        protocol = get_complex_speech(
+            ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+        protocol_function = get_protocol_func(protocol)
+        sent_speech("your protocol is " + protocol[1] + ". ok?")
+        answer = get_complex_speech(["yes", "no"])
+
+    return protocol_function()
+
+
+def get_protocol_func(protocol):
+    protocol_function = {
+        'impending respiratory arrest': threatening_cessation_of_breathing,
+        'suspicion of suffocation from a foreign body': suspicion_of_suffocation_from_a_foreign_body,
+        'pain treatment': pain_treatment
+    }.get(protocol[1])
+    return protocol_function
 
 
 def search_current_state(current_state, protocol):
     pass  # todo: future implementation
 
 _session_documentation = list()
+_labels_list = list()
+def show_labels(label):
+    _labels_list.append(label)
+    if len(_labels_list) > 3:
+        _labels_list.pop(0).destroy()
 def sent_speech(sentence):
     """
     this is the place to implement text-to-speach
@@ -22,11 +60,14 @@ def sent_speech(sentence):
         type="Heally",
         value=sentence
     ))
-    label = tk.Label(window, text=sentence, font=("Arial", 12))
+    label = tk.Label(window, text=sentence, font=("Arial", 20))
+    show_labels(label)
     label.pack()
-    window.update()
     speak(sentence)
+    l.append(label)
+
     return sentence
+
 
 def clean_sentence(sentence):
     """
@@ -49,16 +90,41 @@ def get_common_word(array_a, array_b):
     """
     for word in array_a:
         if word in array_b:
+            label = tk.Label(window, text=word, font=("Arial", 20))
+            show_labels(label)
+            label.pack()
+
+            _session_documentation.append(dict(
+                type="user",
+                value=word
+            ))
             return word
     return None
 
 
-def get_speech(word_to_continue):
+def get_complex_speech(sentence_to_continue):
     """
     this is the place to implement speech-to-text
     :return:
     """
-    sentence = clean_sentence(listen())  # list of words.
+    model = SentenceTransformer('whaleloops/phrase-bert')
+    new_sentence = listen(5)  # list of words.
+    new_sentence = model.encode(new_sentence)
+
+    maximum = [-1, '']
+    cos_sim = nn.CosineSimilarity(dim=0)
+
+    for sentence in sentence_to_continue:
+        encoded_sentence = model.encode(sentence)
+        cos_val = cos_sim(torch.tensor(new_sentence), torch.tensor(encoded_sentence))
+        if cos_val > maximum[0]:
+            maximum = [cos_val, sentence]
+    print(maximum[1])
+    return maximum
+
+
+def get_simple_speech(word_to_continue):
+    sentence = clean_sentence(listen(4))  # list of words.new_sentence = listen() # list of words.
     answer = get_common_word(sentence, word_to_continue)  # get the answer if there is.
 
     while answer is None:
@@ -77,13 +143,13 @@ def report_to_client():
             start_time=_start_time,
             end_time=_end_time,
             duration=_end_time - _start_time,
-            actions=[val if l == "device" else "=> " + val for t in _session_documentation for (l, val) in t.key()],
+            actions=[val if l == "Heally" else "=> " + val for t in _session_documentation for (l, val) in t.key()],
             performer=performer_name,
     )
-    image = Image.open("C:\\Users\\menashe\\Downloads\\im.png")
+    image = tk.Image.open("C:\\Users\\menashe\\Downloads\\im.png")
     image = image.resize((100, 200))
     photo = ImageTk.PhotoImage(image)
-    label = Label(window, image=photo)
+    label = tk.Label(window, image=photo)
     label.pack()
     with open("report.txt", "w") as f:
          for (key, val) in report_dict.keys():
@@ -106,37 +172,53 @@ def process_protocol(protocol):
 
         # there is one option to proceed
         if not current_node.is_decision_node:
-            get_speech(["yes", "done", "finished", "next", "continue", "what is next", "what is next?"])
+            get_simple_speech(["yeah","yes", "done", "ok","okay", "finished", "next", "continue", "what is next","did","good"])
             pass
 
         # there are more than one option to proceed
         else:
-            decision = get_speech([edge.value for edge in current_node.edges])
+            decision = get_simple_speech([edge.value for edge in current_node.edges])
             # find the next node
             for edge in current_node.edges:
                 if edge.value == decision:
                     current_edge = edge
+                    '''label = tk.Label(window, text=decision, font=("Arial", 20))
+                    show_labels(label)
+                    label.pack()'''
+                    _session_documentation.append(
+                        dict(
+                            type="user",
+                            value=decision
+                        )
+                    )
                     break
 
         current_node = current_edge.next
-    report_to_client()
+    sent_speech(current_node.value)
+    sent_speech("Good job, your protocol is finished. Thank you for making our world a better place!")
 
 from datetime import datetime
 _start_time = None
 def start_runnig():
     data_time_obj = datetime.now()
     _start_time = data_time_obj.time()
-    process_protocol(cs.suspicion_of_suffocation_from_a_foreign_body())
+    #label = tk.Label(window, text="what is your situation?",font=("Arial", 20))
+    #show_labels(label)
+    #label.pack()
+    sent_speech("Hello Paramedic, tell me what happened?")
+    process_protocol(find_protocol())
 
 import tkinter as tk
+
 window = tk.Tk()
-window.geometry("400x800")
+window.geometry("800x800")
 image = Image.open("C:\\Users\\menashe\\Downloads\\logo.png")
 image = image.resize((300, 140))
 photo = ImageTk.PhotoImage(image)
-label = Label(window, image=photo)
+label = tk.Label(window, image=photo)
 label.pack()
 button = tk.Button(window, text="Start", command=start_runnig)
 button.pack()
 window.mainloop()
 
+process_protocol(find_protocol())
