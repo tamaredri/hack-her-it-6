@@ -1,0 +1,8 @@
+torch
+numpy
+tqdm
+pyaudio
+wave
+openai_whisper
+text_to_speech
+python_vlc
