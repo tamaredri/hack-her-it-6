@@ -1,10 +1,26 @@
 import string
+from sentence_transformers import SentenceTransformer
+import torch
+from torch import nn
 
-from protocols import create_suspicion_of_suffocation_from_a_foreign_body_protocol as cs
+from protocols.pain_treatment import pain_treatment
 from voice_features import speak, listen
+from protocols.create_suspicion_of_suffocation_from_a_foreign_body_protocol \
+    import suspicion_of_suffocation_from_a_foreign_body
+from protocols.threatening_cessation_of_breathing \
+    import threatening_cessation_of_breathing
 
-def find_protocol(sentence_with_protocol_name):
-    pass
+
+def find_protocol():
+    protocol = get_complex_speech(
+        ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+    protocol_function = {
+        'impending respiratory arrest': threatening_cessation_of_breathing,
+        'suspicion of suffocation from a foreign body': suspicion_of_suffocation_from_a_foreign_body,
+        'pain treatment': pain_treatment
+    }.get(protocol[1])
+    speak("your protocol is " + protocol[1])
+    return protocol_function()
 
 
 def search_current_state(current_state, protocol):
@@ -17,6 +33,7 @@ def sent_speech(sentence):
     :param sentence:
     """
     speak(sentence)
+
 
 def clean_sentence(sentence):
     """
@@ -43,12 +60,29 @@ def get_common_word(array_a, array_b):
     return None
 
 
-def get_speech(word_to_continue):
+def get_complex_speech(sentence_to_continue):
     """
     this is the place to implement speech-to-text
     :return:
     """
-    sentence = clean_sentence(listen())  # list of words.
+    model = SentenceTransformer('whaleloops/phrase-bert')
+    new_sentence = listen(5)  # list of words.
+    new_sentence = model.encode(new_sentence)
+
+    maximum = [-1, '']
+    cos_sim = nn.CosineSimilarity(dim=0)
+
+    for sentence in sentence_to_continue:
+        encoded_sentence = model.encode(sentence)
+        cos_val = cos_sim(torch.tensor(new_sentence), torch.tensor(encoded_sentence))
+        if cos_val > maximum[0]:
+            maximum = [cos_val, sentence]
+    print(maximum[1])
+    return maximum
+
+
+def get_simple_speech(word_to_continue):
+    sentence = clean_sentence(listen(4))  # list of words.new_sentence = listen() # list of words.
     answer = get_common_word(sentence, word_to_continue)  # get the answer if there is.
 
     while answer is None:
@@ -72,12 +106,12 @@ def process_protocol(protocol):
 
         # there is one option to proceed
         if not current_node.is_decision_node:
-            get_speech(["yes", "done", "finished", "next", "continue", "what is next", "what is next?"])
+            get_simple_speech(["yes", "done", "ok", "finished", "next", "continue", "what is next", "what is next?"])
             pass
 
         # there are more than one option to proceed
         else:
-            decision = get_speech([edge.value for edge in current_node.edges])
+            decision = get_simple_speech([edge.value for edge in current_node.edges])
             # find the next node
             for edge in current_node.edges:
                 if edge.value == decision:
@@ -85,6 +119,9 @@ def process_protocol(protocol):
                     break
 
         current_node = current_edge.next
+    sent_speech(current_node.value)
+    sent_speech("good job, your protocol is finished")
 
 
-process_protocol(cs.suspicion_of_suffocation_from_a_foreign_body())
+speak("what is your situation?")
+process_protocol(find_protocol())
