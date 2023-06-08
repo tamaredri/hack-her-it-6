@@ -25,8 +25,9 @@ def clean_sentence(sentence):
     :return: array of words.
     """
     punctuation = string.punctuation
-    no_punctuation = sentence.translate(punctuation)
-    return no_punctuation.split()
+    punctuation = str.maketrans("", "", punctuation)
+    no_punctuation = sentence.translate(punctuation).lower()
+    return no_punctuation.strip().split()
 
 
 def get_common_word(array_a, array_b):
