@@ -4,12 +4,16 @@ from voice_features import speak, get_speech_
 def search_current_state(current_state, protocol):
     pass  # todo: future implementation
 
-
+_session_documentation = list()
 def sent_speech(sentence):
     """
     this is the place to implement text-to-speach
     :param sentence:
     """
+    _session_documentation.append(dict(
+        type="device",
+        value=sentence
+    ))
     speak(sentence)
 
 def get_speech():
@@ -17,12 +21,19 @@ def get_speech():
     this is the place to implement speech-to-text
     :return:
     """
-    return get_speech_()
+    text = get_speech_()
+    _session_documentation.append(dict( #TODO move after cleanLine
+        type="user",
+        value=text
+    ))
+    label = tk.Label(window, text=text, font=("Arial", 12))
+    label.pack()
+
+    return text
 
 
 def process_protocol(protocol):
     current_node = protocol.root
-
     # until current_node holds a leaf value
     while len(current_node.edges) > 0:
 
@@ -46,6 +57,17 @@ def process_protocol(protocol):
                     break
 
         current_node = current_edge.next
+    import pandas as pd
+    print(pd.DataFrame(_session_documentation))
 
+def fu():
+    process_protocol(cs.suspicion_of_suffocation_from_a_foreign_body())
 
-process_protocol(cs.suspicion_of_suffocation_from_a_foreign_body())
+import tkinter as tk
+window = tk.Tk()
+window.title("Healy services")
+window.geometry("400x300")
+button = tk.Button(window, text="Click Me", command=fu)
+button.pack()
+window.mainloop()
+
