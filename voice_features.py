@@ -81,7 +81,7 @@ def trascribeSTT(audio_path):
      'fp16': True, 'compression_ratio_threshold': 2.4, 'logprob_threshold': -1.0, 'no_speech_threshold': 0.6,
      'word_timestamps': False, 'prepend_punctuations': '"\'“¿([{-', 'append_punctuations': '"\'.。,，!！?？:：”)]}、'}
     return transcribe(model, audio_path, temperature=temperature, **args)["text"]
-def get_speech_(DURATION = 3):
+def listen(DURATION = 3):
     record("output.wav")
     text = trascribeSTT("output.wav")
     return text
