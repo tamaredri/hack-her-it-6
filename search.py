@@ -16,11 +16,13 @@ def sent_speech(sentence):
     """
     speak(sentence)
 
+
 def get_common_word(array_a, array_b):
     for word in array_a:
         if word in array_b:
             return word
     return None
+
 
 def get_speech(word_to_continue):
     """
