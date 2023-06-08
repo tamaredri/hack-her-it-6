@@ -1,5 +1,5 @@
 from protocols import create_suspicion_of_suffocation_from_a_foreign_body_protocol as cs
-
+from voice_features import speak, get_speech_
 
 def search_current_state(current_state, protocol):
     pass  # todo: future implementation
@@ -10,15 +10,14 @@ def sent_speech(sentence):
     this is the place to implement text-to-speach
     :param sentence:
     """
-    print(sentence)
-
+    speak(sentence)
 
 def get_speech():
     """
     this is the place to implement speech-to-text
     :return:
     """
-    return input()
+    return get_speech_()
 
 
 def process_protocol(protocol):
