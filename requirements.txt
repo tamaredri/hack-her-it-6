@@ -7,4 +7,4 @@ openai_whisper
 text_to_speech
 python-vlc
 pyttsx3
-torch
+

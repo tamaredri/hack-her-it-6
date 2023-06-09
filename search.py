@@ -1,22 +1,21 @@
 import string
-import string
+
+from protocols.injured_by_a_poisonous_animal import injured_by_a_poisonous_animal
+
 l=[]
-from PIL import ImageTk, Image
 from sentence_transformers import SentenceTransformer
 import torch
 from torch import nn
 
-from protocols.pain_treatment import pain_treatment
 from voice_features import speak, listen
 from protocols.create_suspicion_of_suffocation_from_a_foreign_body_protocol \
     import suspicion_of_suffocation_from_a_foreign_body
-from protocols.threatening_cessation_of_breathing \
-    import threatening_cessation_of_breathing
 
 
 def find_protocol():
     protocol = get_complex_speech(
-        ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+        #'impending respiratory arrest',#
+        ['suspicion of suffocation from a foreign body', 'injured by a poisonous animal'])
     protocol_function = get_protocol_func(protocol)
     #sent_speech("your protocol is " + protocol[1] + ". ok?")
     #answer = get_complex_speech(["yes", "no"])
@@ -35,9 +34,10 @@ def find_protocol():
 
 def get_protocol_func(protocol):
     protocol_function = {
-        'impending respiratory arrest': threatening_cessation_of_breathing,
+        # 'impending respiratory arrest': threatening_cessation_of_breathing,
         'suspicion of suffocation from a foreign body': suspicion_of_suffocation_from_a_foreign_body,
-        'pain treatment': pain_treatment
+        #'pain treatment': pain_treatment,
+        'injured by a poisonous animal': injured_by_a_poisonous_animal
     }.get(protocol[1])
     return protocol_function
 
@@ -48,18 +48,6 @@ def search_current_state(current_state, protocol):
 
 
 _session_documentation = list()
-#_labels_list = list()
-#def show_labels(label, new_text):
-#    _labels_list.append(label)
-#    if len(_labels_list) > 3:
-#        _labels_list.pop(0).config(text=new_text)
-
-import tkinter as tk
-
-window = tk.Tk()
-window.geometry("800x800")
-label = tk.Label(window, text='', font=("Arial", 20))
-text = ''
 
 def sent_speech(sentence):
     """
@@ -70,13 +58,8 @@ def sent_speech(sentence):
         type="Heally",
         value=sentence
     ))
-    #label = tk.Label(window, text=sentence, font=("Arial", 20))
-    label.config(text=text+'\n'+sentence)
-    #show_labels(label, sentence)
-    #label.pack()
-    speak(sentence)
-    l.append(label)
 
+    speak(sentence)
     return sentence
 
 
@@ -211,21 +194,9 @@ def process_protocol(protocol):
 from datetime import datetime
 _start_time = None
 def start_runnig():
-    button.destroy()
     data_time_obj = datetime.now()
-    _start_time = data_time_obj.time()
-    #label = tk.Label(window, text="what is your situation?",font=("Arial", 20))
-    #show_labels(label)
-    #label.pack()
     sent_speech("Hello Paramedic, tell me what happened?")
     process_protocol(find_protocol())
 
-#image = Image.open("C:\\Users\\menashe\\Downloads\\logo.png")
-#image = image.resize((300, 140))
-#photo = ImageTk.PhotoImage(image)
-#label = tk.Label(window, image=photo)
-#label.pack()
-button = tk.Button(window, text="Start", command=start_runnig)
-button.pack()
-window.mainloop()
-process_protocol(find_protocol())
+
+start_runnig()
