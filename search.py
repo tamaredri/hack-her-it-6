@@ -14,13 +14,27 @@ from protocols.threatening_cessation_of_breathing \
 def find_protocol():
     protocol = get_complex_speech(
         ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+    protocol_function = get_protocol_func(protocol)
+    sent_speech("your protocol is " + protocol[1] + ". ok?")
+    answer = get_complex_speech(["yes", "no"])
+
+    while answer[1] == "no":
+        protocol = get_complex_speech(
+            ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+        protocol_function = get_protocol_func(protocol)
+        sent_speech("your protocol is " + protocol[1] + ". ok?")
+        answer = get_complex_speech(["yes", "no"])
+
+    return protocol_function()
+
+
+def get_protocol_func(protocol):
     protocol_function = {
         'impending respiratory arrest': threatening_cessation_of_breathing,
         'suspicion of suffocation from a foreign body': suspicion_of_suffocation_from_a_foreign_body,
         'pain treatment': pain_treatment
     }.get(protocol[1])
-    speak("your protocol is " + protocol[1])
-    return protocol_function()
+    return protocol_function
 
 
 def search_current_state(current_state, protocol):

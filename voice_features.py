@@ -2,10 +2,11 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 import torch
 import pyaudio
 import wave
+import winsound
 from whisper import load_model
 from whisper import transcribe
 import pyttsx3
-
+import time
 if TYPE_CHECKING:
     from whisper.model import Whisper
 model_name = "base"
@@ -27,6 +28,7 @@ def record(path, durtion):
     stream = audio.open(format=FORMAT, channels=CHANNELS,
                         rate=RATE, input=True,
                         frames_per_buffer=CHUNK)
+    winsound.Beep(1700,500)
 
     print("Recording started...")
     frames = []
@@ -70,6 +72,7 @@ def listen(DURATION=2):
 def speak(text):
     engine = pyttsx3.init()
     rate = engine.getProperty('rate')
-    engine.setProperty('rate', 150)
+    engine.setProperty('rate', 130)
     engine.say(text)
     engine.runAndWait()
+    time.sleep(0.1)
