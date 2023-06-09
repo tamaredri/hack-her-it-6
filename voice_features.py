@@ -62,12 +62,10 @@ def trascribeSTT(audio_path):
     return transcribe(model, audio_path, temperature=temperature, **args)["text"]
 
 
-def listen(DURATION=3):
+def listen(DURATION=2):
     record("output.wav", DURATION)
     text = trascribeSTT("output.wav")
     return text
-
-
 
 
 def speak(text):

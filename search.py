@@ -18,17 +18,17 @@ def find_protocol():
     protocol = get_complex_speech(
         ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
     protocol_function = get_protocol_func(protocol)
-    sent_speech("your protocol is " + protocol[1] + ". ok?")
-    answer = get_complex_speech(["yes", "no"])
+    #sent_speech("your protocol is " + protocol[1] + ". ok?")
+    #answer = get_complex_speech(["yes", "no"])
 
 
-    while answer[1] == "no":
-        sent_speech("So, tell me again, what is your situation?")
-        protocol = get_complex_speech(
-            ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
-        protocol_function = get_protocol_func(protocol)
-        sent_speech("your protocol is " + protocol[1] + ". ok?")
-        answer = get_complex_speech(["yes", "no"])
+    #while answer[1] == "no":
+    #    sent_speech("So, tell me again, what is your situation?")
+    #    protocol = get_complex_speech(
+    #        ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+    #    protocol_function = get_protocol_func(protocol)
+    #    sent_speech("your protocol is " + protocol[1] + ". ok?")
+    #    answer = get_complex_speech(["yes", "no"])
 
     return protocol_function()
 
@@ -45,12 +45,22 @@ def get_protocol_func(protocol):
 def search_current_state(current_state, protocol):
     pass  # todo: future implementation
 
+
+
 _session_documentation = list()
-_labels_list = list()
-def show_labels(label):
-    _labels_list.append(label)
-    if len(_labels_list) > 3:
-        _labels_list.pop(0).destroy()
+#_labels_list = list()
+#def show_labels(label, new_text):
+#    _labels_list.append(label)
+#    if len(_labels_list) > 3:
+#        _labels_list.pop(0).config(text=new_text)
+
+import tkinter as tk
+
+window = tk.Tk()
+window.geometry("800x800")
+label = tk.Label(window, text='', font=("Arial", 20))
+text = ''
+
 def sent_speech(sentence):
     """
     this is the place to implement text-to-speach
@@ -60,9 +70,10 @@ def sent_speech(sentence):
         type="Heally",
         value=sentence
     ))
-    label = tk.Label(window, text=sentence, font=("Arial", 20))
-    show_labels(label)
-    label.pack()
+    #label = tk.Label(window, text=sentence, font=("Arial", 20))
+    label.config(text=text+'\n'+sentence)
+    #show_labels(label, sentence)
+    #label.pack()
     speak(sentence)
     l.append(label)
 
@@ -90,9 +101,9 @@ def get_common_word(array_a, array_b):
     """
     for word in array_a:
         if word in array_b:
-            label = tk.Label(window, text=word, font=("Arial", 20))
-            show_labels(label)
-            label.pack()
+            #label = tk.Label(window, text=word, font=("Arial", 20))
+            #show_labels(label)
+            #label.pack()
 
             _session_documentation.append(dict(
                 type="user",
@@ -146,11 +157,11 @@ def report_to_client():
             actions=[val if l == "Heally" else "=> " + val for t in _session_documentation for (l, val) in t.key()],
             performer=performer_name,
     )
-    image = tk.Image.open("C:\\Users\\menashe\\Downloads\\im.png")
-    image = image.resize((100, 200))
-    photo = ImageTk.PhotoImage(image)
-    label = tk.Label(window, image=photo)
-    label.pack()
+    #image = tk.Image.open("C:\\Users\\menashe\\Downloads\\im.png")
+    #image = image.resize((100, 200))
+    #photo = ImageTk.PhotoImage(image)
+    #label = tk.Label(window, image=photo)
+    #label.pack()
     with open("report.txt", "w") as f:
          for (key, val) in report_dict.keys():
             if not isinstance(val, list):
@@ -200,6 +211,7 @@ def process_protocol(protocol):
 from datetime import datetime
 _start_time = None
 def start_runnig():
+    button.destroy()
     data_time_obj = datetime.now()
     _start_time = data_time_obj.time()
     #label = tk.Label(window, text="what is your situation?",font=("Arial", 20))
@@ -208,17 +220,12 @@ def start_runnig():
     sent_speech("Hello Paramedic, tell me what happened?")
     process_protocol(find_protocol())
 
-import tkinter as tk
-
-window = tk.Tk()
-window.geometry("800x800")
-image = Image.open("C:\\Users\\menashe\\Downloads\\logo.png")
-image = image.resize((300, 140))
-photo = ImageTk.PhotoImage(image)
-label = tk.Label(window, image=photo)
-label.pack()
+#image = Image.open("C:\\Users\\menashe\\Downloads\\logo.png")
+#image = image.resize((300, 140))
+#photo = ImageTk.PhotoImage(image)
+#label = tk.Label(window, image=photo)
+#label.pack()
 button = tk.Button(window, text="Start", command=start_runnig)
 button.pack()
 window.mainloop()
-
 process_protocol(find_protocol())
