@@ -9,30 +9,37 @@ from protocols.create_suspicion_of_suffocation_from_a_foreign_body_protocol \
     import suspicion_of_suffocation_from_a_foreign_body
 from protocols.threatening_cessation_of_breathing \
     import threatening_cessation_of_breathing
+from protocols.injured_by_a_poisonous_animal \
+    import injured_by_a_poisonous_animal
 
 
 def find_protocol():
     protocol = get_complex_speech(
-        ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+        [  # 'impending respiratory arrest',
+            'suspicion of suffocation from a foreign body',
+            'pain treatment',
+            # 'injured by a poisonous animal'
+        ])
     protocol_function = get_protocol_func(protocol)
-    sent_speech("your protocol is " + protocol[1] + ". ok?")
-    answer = get_complex_speech(["yes", "no"])
+    # sent_speech("your protocol is " + protocol[1])
+    # answer = get_complex_speech(["yes", "no"])
 
-    while answer[1] == "no":
-        protocol = get_complex_speech(
-            ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
-        protocol_function = get_protocol_func(protocol)
-        sent_speech("your protocol is " + protocol[1] + ". ok?")
-        answer = get_complex_speech(["yes", "no"])
+    # while answer[1] == "no":
+    #    protocol = get_complex_speech(
+    #        ['impending respiratory arrest', 'suspicion of suffocation from a foreign body', 'pain treatment'])
+    #    protocol_function = get_protocol_func(protocol)
+    #    sent_speech("your protocol is " + protocol[1] + ". ok?")
+    #    answer = get_complex_speech(["yes", "no"])
 
     return protocol_function()
 
 
 def get_protocol_func(protocol):
     protocol_function = {
-        'impending respiratory arrest': threatening_cessation_of_breathing,
+        # 'impending respiratory arrest': threatening_cessation_of_breathing,
         'suspicion of suffocation from a foreign body': suspicion_of_suffocation_from_a_foreign_body,
-        'pain treatment': pain_treatment
+        'pain treatment': pain_treatment,
+        # 'injured by a poisonous animal': injured_by_a_poisonous_animal
     }.get(protocol[1])
     return protocol_function
 
@@ -134,8 +141,8 @@ def process_protocol(protocol):
 
         current_node = current_edge.next
     sent_speech(current_node.value)
-    sent_speech("good job, your protocol is finished")
+    sent_speech("good job, your protocol is finished. Thank you for making our world a better place. ")
 
 
-speak("what is your situation?")
+speak("Hello Paramedic, tell me what happened?")
 process_protocol(find_protocol())
